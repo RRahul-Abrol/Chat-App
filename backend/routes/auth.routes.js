@@ -6,6 +6,6 @@ const router =express.Router();
 
 router.post("/signup",signup);
 router.post("/login",login);
-//router.post("/logout", protectRoute, logout); // <<< ADD protectRoute HERE
+router.post("/logout",logout); // <<< ADD protectRoute HERE
 
 export default router;
