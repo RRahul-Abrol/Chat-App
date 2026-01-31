@@ -20,6 +20,7 @@ export const signup = async(req,res)=>{
     const boyProfilePic=`https://testingbot.com/free-online-tools/random-avatar/200?u=${username}`
     const girlProfilePic = `https://testingbot.com/free-online-tools/random-avatar/200?u=${username}`;
     const newUser = new User({
+			
 			fullName,
 			username,
 			password: hashedPassword,
