@@ -13,7 +13,15 @@ const messageSchema= new mongoose.Schema({
   },
   message:{
     type: String,
-    required:true
+  },
+  voiceNote:{
+    type: String, // Base64 encoded audio data - max 5MB
+    maxlength: 5000000 // ~5MB in Base64
+  },
+  isVoiceNote:{
+    type: Boolean,
+    default: false,
+    index: true
   }
 },{timestamps:true});
 

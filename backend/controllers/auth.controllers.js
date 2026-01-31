@@ -14,11 +14,11 @@ export const signup = async(req,res)=>{
 		}
     //hash password here
     const salt = await bcrypt.genSalt(10);
-		const hashedPassword = await bcrypt.hash(password, salt);
+		const hashedPassword = await bcrypt.hash(password, salt); 
     
     // https://avatar-placeholder.iran.liara.run/
-    const boyProfilePic=`https://avatar.iran.liara.run/public/boy?username=${username}`
-    const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
+    const boyProfilePic=`https://testingbot.com/free-online-tools/random-avatar/200?u=${username}`
+    const girlProfilePic = `https://testingbot.com/free-online-tools/random-avatar/200?u=${username}`;
     const newUser = new User({
 			fullName,
 			username,

@@ -3,15 +3,27 @@ import Message from "../models/message.model.js";
 import { io, getReceiverSocketId } from "../socket/socket.js";
 export const sendMessage=async (req,res)=>{
   try {
-    const { message } = req.body;
-    const { id:receiverId } = req.params; // Assuming id is the recipient's user ID
-    const senderId = req.user._id; // Get the sender's user ID from the request object
+    const { message, voiceNote, isVoiceNote } = req.body;
+    const { id:receiverId } = req.params;
+    const senderId = req.user._id;
+
+    // Validate voice note size (max 5MB)
+    if (isVoiceNote && voiceNote) {
+      const voiceNoteSize = Buffer.byteLength(voiceNote, 'utf8');
+      if (voiceNoteSize > 5000000) { // 5MB limit
+        return res.status(400).json({ error: "Voice note too large. Max size is 5MB" });
+      }
+    }
+
+    // Validate that message or voice note is provided
+    if (!message && !voiceNote) {
+      return res.status(400).json({ error: "Message or voice note is required" });
+    }
 
     let conversation=await Conversation.findOne({
       participants: { $all: [senderId, receiverId] }
     });
     if (!conversation) {
-      // If conversation doesn't exist, create a new one
       conversation = await Conversation.create({
         participants: [senderId, receiverId]
       });
@@ -19,26 +31,21 @@ export const sendMessage=async (req,res)=>{
     const newMessage = new Message({
       senderId,
       receiverId,
-      message,
+      message: isVoiceNote ? undefined : message,
+      voiceNote: isVoiceNote ? voiceNote : undefined,
+      isVoiceNote: isVoiceNote || false,
     });
 
     if (newMessage){
       conversation.messages.push(newMessage._id);
     }
-     
-
-
 
     await Promise.all([conversation.save(), newMessage.save()]);
     
-    // SOCKET IO FUNCTIONALITY WILL GO HERE
-		const receiverSocketId = getReceiverSocketId(receiverId);
+    const receiverSocketId = getReceiverSocketId(receiverId);
 		if (receiverSocketId) {
-			// io.to(<socket_id>).emit() used to send events to specific client
 			io.to(receiverSocketId).emit("newMessage", newMessage);
 		}
-
-
 
     res.status(201).json({ newMessage });
   } catch (error) {
